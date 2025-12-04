@@ -20,8 +20,6 @@ def load_games():
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "parquet")
-        .option("header", "true")
-        .option("columnNameOfCorruptRecord", "_corrupt_record")
         .schema(game_schema)
         .load(f"/Volumes/{catalog}/{source_schema}/{volume_name}")
-    )
+   )
