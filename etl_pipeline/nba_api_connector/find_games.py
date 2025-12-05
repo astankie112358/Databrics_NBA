@@ -25,7 +25,3 @@ def get_games_by_date(date, API_KEY):
             "away_team": g["visitor_team"]["full_name"]
         })
     return results
-# games = get_games_by_date("2025-12-02")
-
-# for game in games:
-#     print(game)
