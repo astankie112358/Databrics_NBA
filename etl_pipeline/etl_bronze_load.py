@@ -1,5 +1,5 @@
 from pyspark import pipelines as dp
-from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql.types import StructType, StructField, StringType, LongType
 
 catalog = "nba"
 volume_name = "games"
@@ -12,17 +12,6 @@ game_schema = StructType([
     StructField("away_team", StringType(), True),
     StructField("home_team", StringType(), True),
     StructField("date", StringType(), True)
-])
-
-game_boxscore_schema = StructType([
-    StructField("away_team_id", StringType(), True),
-    StructField("away_team_result", StringType(), True),
-    StructField("date", StringType(), True),
-    StructField("game_id", StringType(), True),
-    StructField("home_team_id", StringType(), True),
-    StructField("home_team_result", StringType(), True),
-    StructField("regulation_time", StringType(), True),
-    StructField("date_day", StringType(), True)
 ])
 
 game_officials_schema = StructType([
@@ -56,8 +45,20 @@ def load_games():
     
 volume_name = "game_boxscores"
 table_name = "game_boxscores"
+
+game_boxscore_schema = StructType([
+    StructField("away_team_id", StringType(), True),
+    StructField("away_team_result", StringType(), True),
+    StructField("date", StringType(), True),
+    StructField("game_id", StringType(), True),
+    StructField("home_team_id", StringType(), True),
+    StructField("home_team_result", StringType(), True),
+    StructField("regulation_time", StringType(), True),
+    StructField("date_day", StringType(), True)
+])
+
 @dp.table(name=f"{catalog}.{bronze_schema}.{table_name}")
-def load_games():
+def load_game_boxscores():
     return (
         spark.readStream
         .format("cloudFiles")
@@ -69,7 +70,7 @@ def load_games():
 volume_name = "game_officials"
 table_name = "game_officials"
 @dp.table(name=f"{catalog}.{bronze_schema}.{table_name}")
-def load_games():
+def load_game_officials():
     return (
         spark.readStream
         .format("cloudFiles")
@@ -82,7 +83,7 @@ def load_games():
 volume_name = "game_team_stats"
 table_name = "game_team_stats"
 @dp.table(name=f"{catalog}.{bronze_schema}.{table_name}")
-def load_games():
+def load_game_team_stats():
     return (
         spark.readStream
         .format("cloudFiles")
