@@ -31,6 +31,7 @@ class Game:
         for i, official in enumerate(self.game_data['officials'])
     ]
     return officials
+  
   def get_team_stats(self):
     return self.game_data['homeTeam']['statistics'], self.game_data['awayTeam']['statistics']
   def get_players(self):
