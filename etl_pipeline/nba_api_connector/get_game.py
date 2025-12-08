@@ -36,4 +36,3 @@ class Game:
     return self.game_data['homeTeam']['statistics'], self.game_data['awayTeam']['statistics']
   def get_players(self):
     return self.game_data['homeTeam']['players'], self.game_data['awayTeam']['players']
-  
