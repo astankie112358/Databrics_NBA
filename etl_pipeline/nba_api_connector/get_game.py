@@ -21,12 +21,12 @@ class Game:
   def get_officials(self):
     officials = [
         {
-            'official_num': f'official{i+1}',
-            'personId': official['personId'],
+            'official_number': f'official_{i+1}',
+            'person_id': official['personId'],
             'game_id': self.game_id,
             'name': official['name'],
-            'firstName': official['firstName'],
-            'familyName': official['familyName']
+            'first_name': official['firstName'],
+            'family_name': official['familyName']
         }
         for i, official in enumerate(self.game_data['officials'])
     ]

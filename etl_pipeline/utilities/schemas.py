@@ -38,7 +38,7 @@ class Schema:
             StructField("first_name", StringType(), True),
             StructField("game_id", StringType(), True),
             StructField("name", StringType(), True),
-            StructField("official_num", StringType(), True),
+            StructField("official_number", StringType(), True),
             StructField("person_id", StringType(), True)
         ])
     @staticmethod
