@@ -30,5 +30,6 @@ dp.create_auto_cdc_flow(
   target=f"{catalog}.{silver_schema}.{game_table_name}",
   source="games_clean",
   keys=["game_id"],
-  sequence_by=col("ingest_timestamp"),
+  sequence_by=col("loaded_date"),
+  except_column_list=["ingest_timestamp", "_rescued_data"]
 )
