@@ -8,6 +8,47 @@ class Rules:
             "valid_home_team": "home_team is NOT NULL",
             "valid_date": "date is NOT NULL",
         }
+    @staticmethod
+    def boxscore_rules():
+        return {
+            "valid_home_team": "home_team_id is NOT NULL",
+            "valid_away_team": "away_team_id is NOT NULL",
+            "valid_game_id": "game_id is NOT NULL",
+            "valid_date": "date is NOT NULL",
+            "valid_regulation_time": "regulation_time is NOT NULL"          
+        }
+    @staticmethod
+    def game_official_rules():
+        return {
+            "valid_first_name": "first_name is NOT NULL",
+            "valid_family_name": "family_name is NOT NULL",
+            "valid_person_id": "person_id is NOT NULL",
+            "valid_game_id": "game_id is NOT NULL",
+            "valid_official_number": "official_number IN ('official_1', 'official_2', 'official_3')"
+        }   
+    @staticmethod
+    def player_stat_rules():
+        return {
+            "valid_game_id": "game_id is NOT NULL",
+            "valid_team_id": "team_id is NOT NULL",
+            "valid_player_id": "player_id is NOT NULL",
+        }
+    @staticmethod
+    def player_rules():
+        return {
+            "valid_player_id": "player_id is NOT NULL",
+            "valid_first_name": "first_name is NOT NULL",
+            "valid_family_name": "family_name is NOT NULL",
+            "valid_team_id": "team_id is NOT NULL",
+            "valid_against_team_id": "against_team_id is NOT NULL"
+        }
+    @staticmethod
+    def team_stat_rules():
+        return{
+            "valid_team_id": "team_id is NOT NULL",
+            "valid_game_id": "game_id is NOT NULL",
+            "valid_against_team_id": "against_team_id is NOT NULL",
+        }
 
     @staticmethod
     def filter_failed(df, rules):
