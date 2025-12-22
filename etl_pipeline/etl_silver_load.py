@@ -167,7 +167,6 @@ def game_team_stats_quarantine():
     return failed_df
 
 #Player dictionary
-
 @dp.table(name = f"{catalog}.{silver_schema}.player_dictionary")
 def player_dictionary_clean():
     return (
