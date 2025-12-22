@@ -10,13 +10,14 @@ game_table_name = "games"
 
 # Games table
 game_rules = Rules.game_rules()
+
 @dp.view(name = "games_clean")
 @dp.expect_all_or_drop(game_rules)
 def games_clean():
     return (
         spark.readStream.table(f"{catalog}.{bronze_schema}.{game_table_name}")
     )
-    
+
 @dp.table(name = f"{catalog}.{silver_schema}.err_{game_table_name}")
 def games_quarantine():
     df = spark.readStream.table(f"{catalog}.{bronze_schema}.{game_table_name}")
@@ -37,6 +38,7 @@ dp.create_auto_cdc_flow(
 
 # Game_boxscores table
 boxscore_rules = Rules.boxscore_rules()
+
 @dp.view(name = "game_boxscores_clean")
 @dp.expect_all_or_drop(boxscore_rules)
 def game_boscore_clean():
@@ -64,12 +66,14 @@ def game_boxscores_quarantine():
 
 # Game_officials table
 game_official_rules = Rules.game_official_rules()
+
 @dp.view(name = "game_officials_clean")
 @dp.expect_all_or_drop(game_official_rules)
 def game_officials_clean():
     return (
         spark.readStream.table(f"{catalog}.{bronze_schema}.game_officials")
     )
+
 dp.create_streaming_table(
   name=f"{catalog}.{silver_schema}.game_officials"
 )
@@ -90,12 +94,14 @@ def game_officials_quarantine():
 
 # Game_players table
 player_rules = Rules.player_rules()
+
 @dp.view(name = "game_players_clean")
 @dp.expect_all_or_drop(player_rules)
 def game_players_clean():
     return (
         spark.readStream.table(f"{catalog}.{bronze_schema}.game_players")
     )
+
 dp.create_streaming_table(
   name=f"{catalog}.{silver_schema}.game_players"
 )
@@ -116,6 +122,7 @@ def game_players_quarantine():
 
 # Player_Stat table
 player_stat_rules = Rules.player_stat_rules()
+
 @dp.view(name = "game_player_stats_clean")
 @dp.expect_all_or_drop(player_stat_rules)
 def game_player_stats_clean():
@@ -142,6 +149,7 @@ def game_player_stats_quarantine():
 
 # Team_stat Table
 team_stat_rules = Rules.team_stat_rules()
+
 @dp.view(name = "game_team_stats_clean")
 @dp.expect_all_or_drop(team_stat_rules)
 def game_team_stats_clean():
