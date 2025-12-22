@@ -1,6 +1,7 @@
 from pyspark import pipelines as dp
-from pyspark.sql.functions import col, explode, expr, collect_set, concat_ws, filter, max, last
+from pyspark.sql import functions as F
 from utilities.rules import Rules
+import transformations.transformations as tr
 
 catalog = "nba"
 bronze_schema = "bronze"
@@ -30,7 +31,7 @@ dp.create_auto_cdc_flow(
   target=f"{catalog}.{silver_schema}.{game_table_name}",
   source="games_clean",
   keys=["game_id"],
-  sequence_by=col("loaded_date"),
+  sequence_by=F.col("loaded_date"),
   except_column_list=["ingest_timestamp", "_rescued_data"]
 )
 
@@ -51,7 +52,7 @@ dp.create_auto_cdc_flow(
   target=f"{catalog}.{silver_schema}.game_boxscores",
   source="game_boxscores_clean",
   keys=["game_id"],
-  sequence_by=col("loaded_date"),
+  sequence_by=F.col("loaded_date"),
   except_column_list=["ingest_timestamp", "_rescued_data"]
 )
 
@@ -77,7 +78,7 @@ dp.create_auto_cdc_flow(
   target=f"{catalog}.{silver_schema}.game_officials",
   source="game_officials_clean",
   keys=["game_id", "official_number"],
-  sequence_by=col("loaded_date"),
+  sequence_by=F.col("loaded_date"),
   except_column_list=["ingest_timestamp", "_rescued_data"]
 )
 
@@ -103,7 +104,7 @@ dp.create_auto_cdc_flow(
   target=f"{catalog}.{silver_schema}.game_players",
   source="game_players_clean",
   keys=["game_id", "team_id", "player_id"],
-  sequence_by=col("loaded_date"),
+  sequence_by=F.col("loaded_date"),
   except_column_list=["ingest_timestamp", "_rescued_data"]
 )
 
@@ -115,12 +116,11 @@ def game_players_quarantine():
 
 # Player_Stat table
 player_stat_rules = Rules.player_stat_rules()
-@dp.table(name = "game_player_stats_clean")
+@dp.view(name = "game_player_stats_clean")
 @dp.expect_all_or_drop(player_stat_rules)
 def game_player_stats_clean():
-    return (
-        spark.readStream.table(f"{catalog}.{bronze_schema}.game_player_stats")
-    )
+    df = spark.readStream.table(f"{catalog}.{bronze_schema}.game_player_stats")
+    return tr.fix_minutes_stat(df,"stat_type","stat_value")
 
 dp.create_streaming_table(
   name=f"{catalog}.{silver_schema}.game_player_stats"
@@ -129,19 +129,24 @@ dp.create_streaming_table(
 dp.create_auto_cdc_flow(
   target=f"{catalog}.{silver_schema}.game_player_stats",
   source="game_player_stats_clean",
-  keys=["game_id", "team_id", "player_id"],
-  sequence_by=col("loaded_date"),
+  keys=["game_id", "team_id", "player_id", "stat_type"],
+  sequence_by=F.col("loaded_date"),
   except_column_list=["ingest_timestamp", "_rescued_data"]
 )
+
+@dp.table(name = f"{catalog}.{silver_schema}.err_game_player_stats")
+def game_player_stats_quarantine():
+    df = spark.readStream.table(f"{catalog}.{bronze_schema}.game_player_stats")
+    failed_df = Rules().filter_failed(df, player_stat_rules)
+    return failed_df
 
 # Team_stat Table
 team_stat_rules = Rules.team_stat_rules()
 @dp.view(name = "game_team_stats_clean")
 @dp.expect_all_or_drop(team_stat_rules)
 def game_team_stats_clean():
-    return (
-        spark.readStream.table(f"{catalog}.{bronze_schema}.game_team_stats")
-    )
+    df = spark.readStream.table(f"{catalog}.{bronze_schema}.game_team_stats")
+    return tr.fix_minutes_stat(df,"stat_type","stat_value")
 
 dp.create_streaming_table(
   name=f"{catalog}.{silver_schema}.game_team_stats"
@@ -150,10 +155,16 @@ dp.create_streaming_table(
 dp.create_auto_cdc_flow(
   target=f"{catalog}.{silver_schema}.game_team_stats",
   source="game_team_stats_clean",
-  keys=["game_id", "team_id", "home", "against_team_id"],
-  sequence_by=col("loaded_date"),
+  keys=["game_id", "team_id", "home", "against_team_id", "stat_type"],
+  sequence_by=F.col("loaded_date"),
   except_column_list=["ingest_timestamp", "_rescued_data"]
 )
+
+@dp.table(name = f"{catalog}.{silver_schema}.err_game_team_stats")
+def game_team_stats_quarantine():
+    df = spark.readStream.table(f"{catalog}.{bronze_schema}.game_team_stats")
+    failed_df = Rules().filter_failed(df, team_stat_rules)
+    return failed_df
 
 #Player dictionary
 
@@ -163,11 +174,11 @@ def player_dictionary_clean():
         spark.read.table(f"{catalog}.{bronze_schema}.game_players")
         .groupBy("player_id")
         .agg(
-            last("first_name").alias("first_name"),
-            last("family_name").alias("family_name"),
-            last("name_i").alias("name_i"),
-            last("status").alias("status"),
-            concat_ws(",", filter(collect_set("position"), lambda x: x!='None')).alias("positions"),
-            concat_ws(",", collect_set("jersey_num")).alias("jersey_numbers"),
+            F.last("first_name").alias("first_name"),
+            F.last("family_name").alias("family_name"),
+            F.last("name_i").alias("name_i"),
+            F.last("status").alias("status"),
+            F.concat_ws(",", F.filter(F.collect_set("position"), lambda x: x!='None')).alias("positions"),
+            F.concat_ws(",", F.collect_set("jersey_num")).alias("jersey_numbers"),
         )
     )
