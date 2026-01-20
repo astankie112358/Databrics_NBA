@@ -25,7 +25,6 @@ def load_games():
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "parquet")
-        .option("cloudFiles.partitionColumns", "date")
         .option("cloudFiles.schemaEvolutionMode", "rescue")
         .schema(Schema.games())
         .load(f"/Volumes/{catalog}/{source_schema}/{game_volume_name}")
@@ -38,7 +37,6 @@ def load_game_boxscores():
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "parquet")
-        .option("cloudFiles.partitionColumns", "date_day")
         .option("cloudFiles.schemaEvolutionMode", "rescue")
         .schema(Schema.boxscores())
         .load(f"/Volumes/{catalog}/{source_schema}/{boxscore_volume_name}")
@@ -51,7 +49,6 @@ def load_game_officials():
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "parquet")
-        .option("cloudFiles.partitionColumns", "game_id")
         .option("cloudFiles.schemaEvolutionMode", "rescue")
         .schema(Schema.officials())
         .load(f"/Volumes/{catalog}/{source_schema}/{officials_volume_name}")
@@ -64,7 +61,6 @@ def load_game_team_stats():
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "parquet")
-        .option("cloudFiles.partitionColumns", "game_id")
         .option("cloudFiles.schemaEvolutionMode", "rescue")
         .schema(Schema.team_stats())
         .load(f"/Volumes/{catalog}/{source_schema}/{teamstats_volume_name}")
@@ -77,7 +73,7 @@ def load_players():
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "parquet")
-        .option("cloudFiles.partitionColumns", ("game_id,team_id"))
+
         .option("cloudFiles.schemaEvolutionMode", "rescue")
         .schema(Schema.players())
         .load(f"/Volumes/{catalog}/{source_schema}/{players_volume_name}")
@@ -90,7 +86,6 @@ def load_game_player_stats():
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "parquet")
-        .option("cloudFiles.partitionColumns", ("game_id,team_id,player_id"))
         .option("cloudFiles.schemaEvolutionMode", "rescue")
         .schema(Schema.player_stats())
         .load(f"/Volumes/{catalog}/{source_schema}/{player_stats_volume_name}")

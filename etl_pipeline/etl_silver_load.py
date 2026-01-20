@@ -154,7 +154,8 @@ team_stat_rules = Rules.team_stat_rules()
 @dp.expect_all_or_drop(team_stat_rules)
 def game_team_stats_clean():
     df = spark.readStream.table(f"{catalog}.{bronze_schema}.game_team_stats")
-    return tr.fix_minutes_stat(df,"stat_type","stat_value")
+    #return tr.fix_minutes_stat(df,"stat_type","stat_value")
+    return df
 
 dp.create_streaming_table(
   name=f"{catalog}.{silver_schema}.game_team_stats"
