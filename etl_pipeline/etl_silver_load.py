@@ -1,7 +1,6 @@
 from pyspark import pipelines as dp
 from pyspark.sql import functions as F
 from utilities.rules import Rules
-import transformations.transformations as tr
 
 catalog = "nba"
 bronze_schema = "bronze"
@@ -127,7 +126,7 @@ player_stat_rules = Rules.player_stat_rules()
 @dp.expect_all_or_drop(player_stat_rules)
 def game_player_stats_clean():
     df = spark.readStream.table(f"{catalog}.{bronze_schema}.game_player_stats")
-    return tr.fix_minutes_stat(df,"stat_type","stat_value")
+    return df
 
 dp.create_streaming_table(
   name=f"{catalog}.{silver_schema}.game_player_stats"
